@@ -38,6 +38,8 @@ class Fuzzify(object):
         reductor = Reductor(decision_table, self.settings)
        
         decision_table_with_reduct, features_number_after_reduct = reductor.worker(decision_table)
+        
+        display(decision_table_with_reduct)
 
         pickle.dump(reductor, open(self.settings.backup_folder + "reductor.p", "wb"))
         pickle.dump(decision_table_with_reduct, open(self.settings.backup_folder + "decision_table_with_reduct.p", "wb"))
