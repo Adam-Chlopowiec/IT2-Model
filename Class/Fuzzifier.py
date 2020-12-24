@@ -1,6 +1,11 @@
 import numpy as np
-import skfuzzy as fuzz
-from skfuzzy import control as ctrl
+
+import os, sys, inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+from scikitfuzzy.skfuzzy import controlType2 as ctrl
+
 import pandas as pd
 from scipy.stats import norm
 import sympy as sy
@@ -18,8 +23,7 @@ class Fuzzifier(object):
 
         for i in range(0, self.settings.feature_numbers):
             feature_label = "F" + str(i)
-            self.features.append(
-                (ctrl.Antecedent(self.x_range, feature_label), ctrl.Antecedent(self.x_range, feature_label))) # TODO: Możliwe, że trzeba tu będzie zrobić tupla Atecedentów
+            self.features.append(ctrl.Antecedent(self.x_range, feature_label)) 
             self.feature_labels.append(feature_label)
 
         self.decision = ctrl.Consequent(self.x_range, 'Decision')
@@ -125,13 +129,13 @@ class Fuzzifier(object):
 
         return np.float64(x_value), np.float64(sigma_value)
     
-    def generateGausses3(self, x_range: np.ndarray, mean: float, sigma: float, sigma_offset: float) -> tuple:
+    def generateGausses3(self, x_range: np.ndarray, mean: float, sigma: float, sigma_offset: float = 0) -> tuple:
         verylow = self.gaussLeft(self.x_range, mean, sigma + sigma_offset)
         middle = self.gaussianFunction(self.x_range, mean, sigma + sigma_offset, -1, -1, 0, 1.01)
         veryhigh = self.gaussRight(self.x_range, mean, sigma + sigma_offset)
         return verylow, middle, veryhigh
     
-    def generateGausses5(self, x_range: np.ndarray, mean: float, sigma_offset: float) -> tuple:
+    def generateGausses5(self, x_range: np.ndarray, mean: float, sigma_offset: float = 0) -> tuple:
         self.cr_low, sigma = self.calculateSigma(mean * (1/2), mean)
         verylow = self.gaussLeft(self.x_range, mean * (1/2), sigma + sigma_offset)
         low = self.gaussianFunction(self.x_range, mean * (1/2), sigma + sigma_offset, -1, self.cr_low, 0, mean)
@@ -143,7 +147,7 @@ class Fuzzifier(object):
         veryhigh = self.gaussRight(self.x_range, mean * (3/2), sigma + sigma_offset)
         return sigma, verylow, low, middle, high, veryhigh
     
-    def generateGausses7(self, x_range: np.ndarray, mean: float, sigma_offset: float) -> tuple:
+    def generateGausses7(self, x_range: np.ndarray, mean: float, sigma_offset: float = 0) -> tuple:
         self.cr_low, sigma = self.calculateSigma(mean * (1/3), mean * (2/3))
         verylow = self.gaussLeft(self.x_range, mean * (1/3), sigma + sigma_offset)
         low = self.gaussianFunction(self.x_range, mean * (1/3), sigma + sigma_offset, -1, self.cr_low, 0, mean * (2/3))
@@ -161,7 +165,7 @@ class Fuzzifier(object):
         veryhigh = self.gaussRight(self.x_range, mean * (5/3), sigma + sigma_offset)
         return sigma, verylow, low, middlelow, middle, middlehigh, high, veryhigh
     
-    def generateGausses9(self, x_range: np.ndarray, mean: float, sigma_offset: float) -> tuple:
+    def generateGausses9(self, x_range: np.ndarray, mean: float, sigma_offset: float = 0) -> tuple:
         self.cr_low, sigma = self.calculateSigma(mean * (1/4), mean * (2/4))
         verylow = self.gaussLeft(self.x_range, mean * (1/4), sigma + sigma_offset)
         low = self.gaussianFunction(self.x_range, mean * (1/4), sigma + sigma_offset, -1, self.cr_low, 0, mean * (2/4))
@@ -185,7 +189,7 @@ class Fuzzifier(object):
         veryhigh = self.gaussRight(self.x_range, mean * (7/4), sigma + sigma_offset)
         return sigma, verylow, low, middlelowminus, middlelow, middle, middlehigh, middlehighplus, high, veryhigh
     
-    def generateGausses11(self, x_range: np.ndarray, mean: float, sigma_offset: float) -> tuple:
+    def generateGausses11(self, x_range: np.ndarray, mean: float, sigma_offset: float = 0) -> tuple:
         self.cr_low, sigma = self.calculateSigma(mean * (1/5), mean * (2/5))
         verylow = self.gaussLeft(self.x_range, mean * (1/5), sigma + sigma_offset)
         low = self.gaussianFunction(self.x_range, mean * (1/5), sigma + sigma_offset, -1, self.cr_low, 0, mean * (2/5))
@@ -287,54 +291,62 @@ class Fuzzifier(object):
         if self.settings.gausses == 3:
             lower_functions = self.generateGausses3(self.x_range, mean, sigma, SIGMA_OFFSET * (-1))
             upper_functions = self.generateGausses3(self.x_range, mean, sigma, SIGMA_OFFSET)
+            middle_functions = self.generateGausses3(self.x_range, mean)[1:]
             names = (self.settings.verylow, self.settings.middle, self.settings.veryhigh)
-            for lower, upper, name in zip(lower_functions, upper_functions, names):
-                self.features[idx][0][name] = lower
-                self.features[idx][1][name] = upper
+            for middle, lower, upper, name in zip(middle_functions, lower_functions, upper_functions, names):
+                self.features[idx][0][name] = middle
+                self.features[idx][1][name] = lower
+                self.features[idx][2][name] = upper
 
         elif self.settings.gausses == 5:
             lower_functions = self.generateGausses5(self.x_range, mean, SIGMA_OFFSET * (-1))
             sigma = lower_functions[0]
             lower_functions = lower_functions[1:]
-            
             upper_functions = self.generateGausses5(self.x_range, mean, SIGMA_OFFSET)[1:]
+            middle_functions = self.generateGausses5(self.x_range, mean)[1:]
             names = (self.settings.verylow, self.settings.low, self.settings.middle, self.settings.high, self.settings.veryhigh)
-            for lower, upper, name in zip(lower_functions, upper_functions, names):
-                self.features[idx][0][name] = lower
-                self.features[idx][1][name] = upper
+            for middle, lower, upper, name in zip(middle_functions, lower_functions, upper_functions, names):
+                self.features[idx][0][name] = middle
+                self.features[idx][1][name] = lower
+                self.features[idx][2][name] = upper
 
         elif self.settings.gausses == 7:
             lower_functions = self.generateGausses7(self.x_range, mean, SIGMA_OFFSET * (-1))
             sigma = lower_functions[0]
             lower_functions = lower_functions[1:]
-            
             upper_functions = self.generateGausses7(self.x_range, mean, SIGMA_OFFSET)[1:]
+            middle_functions = self.generateGausses7(self.x_range, mean)[1:]
             names = (self.settings.verylow, self.settings.low, self.settings.middlelow, self.settings.middle, self.settings.middlehigh, self.settings.high, self.settings.veryhigh)
-            for lower, upper, name in zip(lower_functions, upper_functions, names):
-                self.features[idx][0][name] = lower
-                self.features[idx][1][name] = upper
+            for middle, lower, upper, name in zip(middle_functions, lower_functions, upper_functions, names):
+                self.features[idx][0][name] = middle
+                self.features[idx][1][name] = lower
+                self.features[idx][2][name] = upper
             
         elif self.settings.gausses == 9:
             lower_functions = self.generateGausses9(self.x_range, mean, SIGMA_OFFSET * (-1))
             sigma = lower_functions[0]
             lower_functions = lower_functions[1:]
             upper_functions = self.generateGausses9(self.x_range, mean, SIGMA_OFFSET)[1:]
+            middle_functions = self.generateGausses9(self.x_range, mean)[1:]
             names = (self.settings.verylow, self.settings.low, self.settings.middlelowminus, self.settings.middlelow, self.settings.middle
                      , self.settings.middlehigh, self.settings.middlehighplus, self.settings.high, self.settings.veryhigh)
-            for lower, upper, name in zip(lower_functions, upper_functions, names):
-                self.features[idx][0][name] = lower
-                self.features[idx][1][name] = upper
+            for middle, lower, upper, name in zip(middle_functions, lower_functions, upper_functions, names):
+                self.features[idx][0][name] = middle
+                self.features[idx][1][name] = lower
+                self.features[idx][2][name] = upper
 
         elif self.settings.gausses == 11:
             lower_functions = self.generateGausses11(self.x_range, mean, SIGMA_OFFSET * (-1))
             sigma = lower_functions[0]
             lower_functions = lower_functions[1:]
             upper_functions = self.generateGausses11(self.x_range, mean, SIGMA_OFFSET)[1:]
+            middle_functions = self.generateGausses11(self.x_range, mean)[1:]
             names = (self.settings.verylow, self.settings.low, self.settings.middlelowminus, self.settings.middlelow, self.settings.middlelowplus, self.settings.middle,
                      self.settings.middlehighminus, self.settings.middlehigh, self.settings.middlehighplus, self.settings.high, self.settings.veryhigh)
-            for lower, upper, name in zip(lower_functions, upper_functions, names):
-                self.features[idx][0][name] = lower
-                self.features[idx][1][name] = upper
+            for middle, lower, upper, name in zip(middle_functions, lower_functions, upper_functions, names):
+                self.features[idx][0][name] = middle
+                self.features[idx][1][name] = lower
+                self.features[idx][2][name] = upper
             
 
         self.fuzzify_parameters.append(mean)
@@ -422,11 +434,11 @@ class Fuzzifier(object):
     def fuzzify(self, features_table, mean_param):
         if isinstance(mean_param, (int, np.integer)):
             for idx, x in enumerate(self.features):
-                features_table[x[0].label] = self.numbersToRowSets(idx, features_table[x[0].label], mean_param)
+                features_table[x.label] = self.numbersToRowSets(idx, features_table[x.label], mean_param)
         
         else:
             for idx, x in enumerate(self.features):
-                features_table[x[0].label] = self.numbersToRowSets(idx, features_table[x[0].label], mean_param[idx])
+                features_table[x.label] = self.numbersToRowSets(idx, features_table[x.label], mean_param[idx])
         
         if self.settings.show_results:
             self.presentFuzzyFeature_Charts()

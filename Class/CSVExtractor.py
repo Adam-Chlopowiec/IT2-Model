@@ -19,7 +19,7 @@ class CSVExtractor(object):
         return features_df
 
     def normalizeFeatures(self, features_df, fuzzifier):
-        for x, _ in fuzzifier.features:
+        for x in fuzzifier.features:
             features_df[x.label] = (
                 features_df[x.label] - features_df[x.label].min()) / (
                     features_df[x.label].max() - features_df[x.label].min())

@@ -4,8 +4,14 @@ import datetime
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import skfuzzy as fuzz
-from skfuzzy import control as ctrl
+
+import os, sys, inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+from scikitfuzzy import skfuzzy as fuzz
+from scikitfuzzy.skfuzzy import controlType2 as ctrl
+
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_recall_fscore_support as score
 from Class.RulesSetter import RulesSetter as RulesSetter
@@ -63,24 +69,26 @@ class FuzzyHelper(object):
 
 
 
-    def defineClassOne(self, x, center_point, width):
+    def defineClassOne(self, x, center_point, width, center_offset = 0):
         y = np.zeros(len(x))
         idx = x <= center_point
-        y[idx] = fuzz.sigmf(x[idx], center_point, width)
+        y[idx] = fuzz.sigmf(x[idx], center_point + center_offset, width)
         return y
 
-    def defineClassTwo(self, x, center_point, width):
+    def defineClassTwo(self, x, center_point, width, center_offset = 0):
         y = np.zeros(len(x))
         idx = x > center_point
-        y[idx] = fuzz.sigmf(x[idx], center_point, width)
+        y[idx] = fuzz.sigmf(x[idx], center_point + center_offset, width)
         return y
 
     def prepareRules(self, save, x_range, center_point, width, rules_extractor, rule_antecedents, d_results, decision, df = None):
         
-        decision[self.settings.class_1] = self.defineClassOne(x_range, center_point, -width)
-        decision[self.settings.class_2] = self.defineClassTwo(x_range, center_point, width)     
+        decision[self.settings.class_1] = (self.defineClassOne(x_range, center_point, -width, -0.15), self.defineClassOne(x_range, center_point, -width, 0.15))
+        decision[self.settings.class_2] = (self.defineClassTwo(x_range, center_point, width, 0.15), self.defineClassTwo(x_range, center_point, width, -0.15))
         
         rules = rules_extractor.generateRules(rule_antecedents, d_results, decision)
+        print("Generated Rules: ")
+        display(rules)
         class_ctrl = ctrl.ControlSystem(rules)
         gen = class_ctrl.fuzzy_variables
         classing = ctrl.ControlSystemSimulation(class_ctrl)
@@ -127,6 +135,10 @@ class FuzzyHelper(object):
         decision, classing, rules_feature_names = self.prepareRules(False, x_range, center_point, width, rules_extractor, rule_antecedents, d_results, decision)
         print("Level 1")
         df = self.prepareDataFrame(df, rules_feature_names)
+        
+        pickle.dump(rule_antecedents, open(r'F:\scikit-fuzzy\skfuzzy\controlType2\tests\Pickle\rule_antecedents.p', "wb")) # USUNĄĆ TO
+        pickle.dump(df, open(r'F:\scikit-fuzzy\skfuzzy\controlType2\tests\Pickle\dataframe.p', "wb")) # USUNĄĆ TO
+        
         print("Level 2")
         df = df.progress_apply(self.makePrediction, classing = classing, rules_feature_names = rules_feature_names, decision = decision, axis=1)
         print("Level 3")

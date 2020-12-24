@@ -1,7 +1,12 @@
 import numpy as np
 import boolean
-import skfuzzy as fuzz
-from skfuzzy import control as ctrl
+
+import os, sys, inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+from scikitfuzzy.skfuzzy import controlType2 as ctrl
+
 from tqdm import tqdm
 
 class RulesExtractor(object):
@@ -187,6 +192,9 @@ class RulesExtractor(object):
         self.index_of_rules_table = self.getIndexOfRulesTable(decision_table)
         self.rule_implicants = self.modifyImplicantsForRules(implicants, decision_table, features)
         self.rule_antecedents = self.generateRuleAntecedents(self.index_of_rules_table, self.rule_implicants) 
+        
+        print("Rule antecedets w RulesExtractor worker")
+        display(self.rule_antecedents)
 
         return self.rule_antecedents
     
