@@ -127,9 +127,6 @@ class InconsistenciesRemover(object):
             display(features_decisions_occurence)
         features_occurence = self.getOccurenceOfRows(self.features_table,
                                                 ['Image', 'Decision'])
-        
-        print("w inconsistenciesRemoving")
-        display(features_decisions_occurence)
 
         if self.settings.show_results:
             display(features_occurence)

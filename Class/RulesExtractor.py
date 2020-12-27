@@ -192,9 +192,5 @@ class RulesExtractor(object):
         self.index_of_rules_table = self.getIndexOfRulesTable(decision_table)
         self.rule_implicants = self.modifyImplicantsForRules(implicants, decision_table, features)
         self.rule_antecedents = self.generateRuleAntecedents(self.index_of_rules_table, self.rule_implicants) 
-        
-        print("Rule antecedets w RulesExtractor worker")
-        display(self.rule_antecedents)
-
         return self.rule_antecedents
     

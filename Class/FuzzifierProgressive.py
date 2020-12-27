@@ -1,6 +1,11 @@
 import numpy as np
-import skfuzzy as fuzz
-from skfuzzy import control as ctrl
+
+import os, sys, inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+from scikitfuzzy.skfuzzy import controlType2 as ctrl
+
 import pandas as pd
 from scipy.stats import norm
 import sympy as sy
@@ -144,7 +149,114 @@ class FuzzifierProgressive(object):
 
         return np.float64(x_value), np.float64(sigma_value)
 
-    def numbersToRowSets(self, idx, values, mean):
+    def generateGausses3(self, x_range: np.ndarray, mean: float, sigma: float, sigma_offset: float = 0):
+        verylow = self.gaussLeft(self.x_range, mean, sigma + sigma_offset)
+        middle = self.gaussianFunction(self.x_range, mean, sigma + sigma_offset, -1, -1, 0, 1.01, -1, -1)
+        veryhigh = self.gaussRight(self.x_range, mean, sigma + sigma_offset)
+        return verylow, middle, veryhigh
+    
+    def generateGausses5(self, x_range: np.ndarray, mean: float, sigma_offset: float = 0):
+        minus_mean = 1 - mean
+        if (minus_mean * (1/4) >= (mean * (1/4))):
+            self.__cr_middle, self.__center_sigma = self.calculateBothSigma(mean, mean + (mean * (1/4)))
+        else:
+            self.__cr_middle, self.__center_sigma = self.calculateBothSigma(mean, mean + (minus_mean * (1/4)))
+
+        self.__cr_low, self.__left_sigma = self.calculateSigma(mean - (mean * (1/4)), mean, self.__center_sigma)
+        _, self.__right_sigma = self.calculateSigma(mean, mean + (minus_mean * (1/4)), self.__center_sigma)
+
+        verylow = self.gaussLeft(self.x_range, mean - (mean * (1/4)), self.__left_sigma + sigma_offset)
+        low = self.gaussianFunction(self.x_range, mean - (mean * (1/4)), self.__left_sigma + sigma_offset, -1, self.__cr_low, 0, mean, -1, self.__center_sigma + sigma_offset)
+        middle = self.gaussianFunction(self.x_range, mean, self.__center_sigma + sigma_offset, self.__cr_low, self.__cr_middle, mean - (mean * (1/4)), mean + (minus_mean * (1/4)), self.__left_sigma + sigma_offset, self.__right_sigma + sigma_offset)
+        high = self.gaussianFunction(self.x_range, mean + (minus_mean * (1/4)), self.__right_sigma + sigma_offset, self.__cr_middle, -1, mean, 1.01, self.__center_sigma + sigma_offset, -1)
+        veryhigh = self.gaussRight(self.x_range, mean + (minus_mean * (1/4)), self.__right_sigma + sigma_offset)
+        return verylow, low, middle, high, veryhigh
+    
+    def generateGausses7(self, x_range: np.ndarray, mean: float, sigma_offset: float = 0):
+        minus_mean = 1 - mean
+        if (minus_mean * (1/10) >= (mean * (1/10))):
+            self.__cr_middle, self.__center_sigma = self.calculateBothSigma(mean, mean + (mean * (1/10)))
+        else:
+            self.__cr_middle, self.__center_sigma = self.calculateBothSigma(mean, mean + (minus_mean * (1/10)))
+            
+        self.__cr_middlelow, self.__middle_left_sigma = self.calculateSigma(mean - (mean * (1/10)), mean, self.__center_sigma)
+        self.__cr_low, self.__left_sigma = self.calculateSigma(mean - (mean * (4/10)), mean - (mean * (1/10)), self.__middle_left_sigma)
+
+        _, self.__middle_right_sigma = self.calculateSigma(mean + (minus_mean * (1/10)), mean, self.__center_sigma)
+        self.__cr_high, self.__right_sigma = self.calculateSigma(mean + (minus_mean * (4/10)), mean + (minus_mean * (1/10)), self.__middle_right_sigma)
+
+        verylow = self.gaussLeft(self.x_range, mean - (mean * (4/10)), self.__left_sigma + sigma_offset)
+        low = self.gaussianFunction(self.x_range, mean - (mean * (4/10)), self.__left_sigma + sigma_offset, -1, self.__cr_low, 0, mean - (mean * (1/10)), -1, self.__middle_left_sigma + sigma_offset)
+        middlelow = self.gaussianFunction(self.x_range, mean - (mean * (1/10)), self.__middle_left_sigma + sigma_offset, self.__cr_low, self.__cr_middlelow, mean - (mean * (4/10)), mean, self.__left_sigma + sigma_offset, self.__center_sigma + sigma_offset)
+
+        middle = self.gaussianFunction(self.x_range, mean, self.__center_sigma + sigma_offset, self.__cr_middlelow, self.__cr_middle, mean - (mean * (1/10)), mean + (minus_mean * (1/10)), self.__middle_left_sigma + sigma_offset, self.__middle_right_sigma + sigma_offset)
+
+        middlehigh = self.gaussianFunction(self.x_range, mean + (minus_mean * (1/10)), self.__middle_right_sigma + sigma_offset, self.__cr_middle, self.__cr_high, mean, mean + (minus_mean * (4/10)), self.__center_sigma + sigma_offset, self.__right_sigma + sigma_offset)
+        high = self.gaussianFunction(self.x_range, mean + (minus_mean * (4/10)), self.__right_sigma + sigma_offset, self.__cr_high, -1, mean + (minus_mean * (1/10)), 1.01, self.__middle_right_sigma + sigma_offset, -1)
+        veryhigh = self.gaussRight(self.x_range, mean + (minus_mean * (4/10)), self.__right_sigma + sigma_offset)
+        return verylow, low, middlelow, middle, middlehigh, high, veryhigh
+    
+    def generateGausses9(self, x_range: np.ndarray, mean: float, sigma_offset: float = 0):
+        minus_mean = 1 - mean
+        if (minus_mean * (1/20) >= (mean * (1/20))):
+            self.__cr_middle, self.__center_sigma = self.calculateBothSigma(mean, mean + (mean * (1/20)))
+        else:
+            self.__cr_middle, self.__center_sigma = self.calculateBothSigma(mean, mean + (minus_mean * (1/20)))
+            
+        self.__cr_middlelow, self.__middle_left_sigma = self.calculateSigma(mean - (mean * (1/20)), mean, self.__center_sigma)
+        self.__cr_middlelowminus, self.__middle_left_minus_sigma = self.calculateSigma(mean - (mean * (4/20)), mean - (mean * (1/20)), self.__middle_left_sigma)
+        self.__cr_low, self.__left_sigma = self.calculateSigma(mean - (mean * (10/20)), mean - (mean * (4/20)), self.__middle_left_minus_sigma)
+
+        _, self.__middle_right_sigma = self.calculateSigma(mean + (minus_mean * (1/20)), mean, self.__center_sigma)
+        self.__cr_middlehighplus, self.__middle_right_plus_sigma = self.calculateSigma(mean + (minus_mean * (4/20)), mean + (minus_mean * (1/20)), self.__middle_right_sigma)
+        self.__cr_high, self.__right_sigma = self.calculateSigma(mean + (minus_mean * (10/20)), mean + (minus_mean * (4/20)), self.__middle_right_plus_sigma)
+
+        verylow = self.gaussLeft(self.x_range, mean - (mean * (10/20)), self.__left_sigma + sigma_offset)
+        low = self.gaussianFunction(self.x_range, mean - (mean * (10/20)), self.__left_sigma + sigma_offset, -1, self.__cr_low, 0, mean - (mean * (4/20)), -1, self.__middle_left_minus_sigma + sigma_offset)
+        middlelowminus = self.gaussianFunction(self.x_range, mean - (mean * (4/20)), self.__middle_left_minus_sigma + sigma_offset, self.__cr_low, self.__cr_middlelowminus, mean - (mean * (10/20)), mean - (mean * (1/20)), self.__left_sigma + sigma_offset, self.__middle_left_sigma + sigma_offset)
+        middlelow = self.gaussianFunction(self.x_range, mean - (mean * (1/20)), self.__middle_left_sigma + sigma_offset, self.__cr_middlelowminus, self.__cr_middlelow, mean - (mean * (4/20)), mean, self.__middle_left_minus_sigma + sigma_offset, self.__center_sigma + sigma_offset)
+
+        middle = self.gaussianFunction(self.x_range, mean, self.__center_sigma + sigma_offset, self.__cr_middlelow, self.__cr_middle, mean - (mean * (1/20)), mean + (minus_mean * (1/20)), self.__middle_left_sigma + sigma_offset, self.__middle_right_sigma + sigma_offset)
+
+        middlehigh = self.gaussianFunction(self.x_range, mean + (minus_mean * (1/20)), self.__middle_right_sigma + sigma_offset, self.__cr_middle, self.__cr_high, mean, mean + (minus_mean * (4/20)), self.__center_sigma + sigma_offset, self.__middle_right_plus_sigma + sigma_offset)
+        middlehighplus = self.gaussianFunction(self.x_range, mean + (minus_mean *(4/20)), self.__middle_right_plus_sigma + sigma_offset, self.__cr_middlehighplus, self.__cr_high, mean  + (minus_mean * (1/20)), mean  + (minus_mean * (10/20)), self.__middle_right_sigma + sigma_offset, self.__right_sigma + sigma_offset)
+        high = self.gaussianFunction(self.x_range, mean + (minus_mean * (10/20)), self.__right_sigma + sigma_offset, self.__cr_high, -1, mean + (minus_mean * (4/20)), 1.01, self.__middle_right_plus_sigma + sigma_offset, -1)
+        veryhigh = self.gaussRight(self.x_range, mean + (minus_mean * (10/20)), self.__right_sigma + sigma_offset)
+        return verylow, low, middlelowminus, middlelow, middle, middlehigh, middlehighplus, high, veryhigh
+    
+    def generateGausses11(self, x_range: np.ndarray, mean: float, sigma_offset: float = 0):
+        minus_mean = 1 - mean
+        if (minus_mean * (1/35) >= (mean * (1/35))):
+            self.__cr_middle, self.__center_sigma = self.calculateBothSigma(mean, mean + (mean * (1/35)))
+        else:
+            self.__cr_middle, self.__center_sigma = self.calculateBothSigma(mean, mean + (minus_mean * (1/35)))
+
+        self.__cr_middlelowplus, self.__middle_left_plus_sigma = self.calculateSigma(mean - (mean * (1/35)), mean, self.__center_sigma)
+        self.__cr_middlelow, self.__middle_left_sigma = self.calculateSigma(mean - (mean * (4/35)), mean - (mean * (1/35)), self.__middle_left_plus_sigma)
+        self.__cr_middlelowminus, self.__middle_left_minus_sigma = self.calculateSigma(mean - (mean * (10/35)), mean - (mean * (4/35)), self.__middle_left_sigma)
+        self.__cr_low, self.__left_sigma = self.calculateSigma(mean - (mean * (20/35)), mean - (mean * (10/35)), self.__middle_left_minus_sigma)
+
+        _, self.__middle_right_sigma = self.calculateSigma(mean + (minus_mean * (1/35)), mean, self.__center_sigma)
+        self.__cr_middlehighplus, self.__middle_right_plus_sigma = self.calculateSigma(mean + (minus_mean * (4/35)), mean + (minus_mean * (1/35)), self.__middle_right_sigma)
+        self.__cr_high, self.__right_sigma = self.calculateSigma(mean + (minus_mean * (10/35)), mean + (minus_mean * (4/35)), self.__middle_right_plus_sigma)
+        self.__cr_middlehighminus, self.__middle_right_minus_sigma = self.calculateSigma(mean + (minus_mean * (20/35)), mean + (minus_mean * (10/35)), self.__right_sigma)
+
+        verylow = self.gaussLeft(self.x_range, mean - (mean * (20/35)), self.__left_sigma + sigma_offset)
+        low = self.gaussianFunction(self.x_range, mean - (mean * (20/35)), self.__left_sigma + sigma_offset, -1, self.__cr_low, 0, mean - (mean * (10/35)), -1, self.__middle_left_minus_sigma + sigma_offset)
+        middlelowminus = self.gaussianFunction(self.x_range, mean - (mean * (10/35)), self.__middle_left_minus_sigma + sigma_offset, self.__cr_low, self.__cr_middlelowminus, mean - (mean * (20/35)), mean - (mean * (4/35)), self.__left_sigma + sigma_offset, self.__middle_left_sigma + sigma_offset)
+        middlelow = self.gaussianFunction(self.x_range, mean - (mean * (4/35)), self.__middle_left_sigma + sigma_offset, self.__cr_middlelowminus, self.__cr_middlelow, mean - (mean * (10/35)), mean - (mean * (1/35)), self.__middle_left_minus_sigma + sigma_offset, self.__middle_left_plus_sigma + sigma_offset)
+        middlelowplus = self.gaussianFunction(self.x_range, mean - (mean * (1/35)), self.__middle_left_plus_sigma + sigma_offset, self.__cr_middlelow, self.__cr_middlelowplus, mean - (mean * (4/35)), mean, self.__middle_left_sigma + sigma_offset, self.__center_sigma + sigma_offset)
+
+        middle = self.gaussianFunction(self.x_range, mean, self.__center_sigma + sigma_offset, self.__cr_middlelow, self.__cr_middle, mean - (mean * (1/35)), mean + (minus_mean * (1/35)), self.__middle_left_sigma + sigma_offset, self.__middle_right_sigma + sigma_offset)
+
+        middlehigh = self.gaussianFunction(self.x_range, mean + (minus_mean * (1/35)), self.__middle_right_sigma + sigma_offset, self.__cr_middle, self.__cr_high, mean, mean + (minus_mean * (4/35)), self.__center_sigma + sigma_offset, self.__middle_right_plus_sigma + sigma_offset)
+        middlehighplus = self.gaussianFunction(self.x_range, mean + (minus_mean * (4/35)), self.__middle_right_plus_sigma + sigma_offset, self.__cr_middlehighplus, self.__cr_high, mean  + (minus_mean * (1/35)), mean  + (minus_mean * (10/35)), self.__middle_right_sigma + sigma_offset, self.__right_sigma + sigma_offset)
+        high = self.gaussianFunction(self.x_range, mean + (minus_mean * (10/35)), self.__right_sigma + sigma_offset, self.__cr_high, self.__cr_middlehighminus, mean + (minus_mean * (4/35)), mean + (minus_mean * (20/35)), self.__middle_right_plus_sigma + sigma_offset, self.__middle_right_minus_sigma + sigma_offset)
+        middlehighminus = self.gaussianFunction(self.x_range, mean + (minus_mean * (20/35)), self.__middle_right_minus_sigma + sigma_offset, self.__cr_middlehighminus, -1, mean  + (minus_mean * (10/35)), 1.01, self.__right_sigma + sigma_offset, -1)
+        veryhigh = self.gaussRight(self.x_range, mean + (minus_mean * (20/35)), self.__middle_right_minus_sigma + sigma_offset)
+        return verylow, low, middlelowminus, middlelow, middlelowplus, middle, middlehighminus, middlehigh, middlehighplus, high, veryhigh
+    
+    def numbersToRowSets(self, idx, values, mean, sigma_offset = 0):
         values = values.values
         return_array = []
 
@@ -161,108 +273,45 @@ class FuzzifierProgressive(object):
             print("\tSigma: " + str(sigma))
 
         minus_mean = 1 - mean
+        
         if self.settings.gausses == 3:
-            self.features[idx][self.settings.verylow] = self.gaussLeft(self.x_range, mean, sigma)
-            self.features[idx][self.settings.middle] = self.gaussianFunction(self.x_range, mean, sigma, -1, -1, 0, 1.01, -1, -1)
-            self.features[idx][self.settings.veryhigh] = self.gaussRight(self.x_range, mean, sigma)
+            lower_functions = self.generateGausses3(self.x_range, mean, sigma, sigma_offset * (-1))
+            upper_functions = self.generateGausses3(self.x_range, mean, sigma, sigma_offset)
+            names = (self.settings.verylow, self.settings.middle, self.settings.veryhigh)
+            for lower, upper, name in zip(lower_functions, upper_functions, names):
+                self.features[idx][name] = (lower, upper)
 
         elif self.settings.gausses == 5:
-            if (minus_mean * (1/4) >= (mean * (1/4))):
-                cr_middle, center_sigma = self.calculateBothSigma(mean, mean + (mean * (1/4)))
-            else:
-                cr_middle, center_sigma = self.calculateBothSigma(mean, mean + (minus_mean * (1/4)))
-
-            cr_low, left_sigma = self.calculateSigma(mean - (mean * (1/4)), mean, center_sigma)
-            _, right_sigma     = self.calculateSigma(mean, mean + (minus_mean * (1/4)), center_sigma)
-
-            self.features[idx][self.settings.verylow] = self.gaussLeft(self.x_range, mean - (mean * (1/4)), left_sigma)
-            self.features[idx][self.settings.low] = self.gaussianFunction(self.x_range, mean - (mean * (1/4)), left_sigma, -1, cr_low, 0, mean, -1, center_sigma)
-            self.features[idx][self.settings.middle] = self.gaussianFunction(self.x_range, mean, center_sigma, cr_low, cr_middle, mean - (mean * (1/4)), mean + (minus_mean * (1/4)), left_sigma, right_sigma)
-            self.features[idx][self.settings.high] = self.gaussianFunction(self.x_range, mean + (minus_mean * (1/4)), right_sigma, cr_middle, -1, mean, 1.01, center_sigma, -1)  
-            self.features[idx][self.settings.veryhigh] = self.gaussRight(self.x_range, mean + (minus_mean * (1/4)), right_sigma)
+            lower_functions = self.generateGausses5(self.x_range, mean, sigma_offset * (-1))
+            upper_functions = self.generateGausses5(self.x_range, mean, sigma_offset)
+            names = (self.settings.verylow, self.settings.low, self.settings.middle, self.settings.high, self.settings.veryhigh)
+            for lower, upper, name in zip(lower_functions, upper_functions, names):
+                self.features[idx][name] = (lower, upper)
 
         elif self.settings.gausses == 7:
-            if (minus_mean * (1/10) >= (mean * (1/10))):
-                cr_middle, center_sigma = self.calculateBothSigma(mean, mean + (mean * (1/10)))
-            else:
-                cr_middle, center_sigma = self.calculateBothSigma(mean, mean + (minus_mean * (1/10)))
-            
-            cr_middlelow, middle_left_sigma = self.calculateSigma(mean - (mean * (1/10)), mean, center_sigma)
-            cr_low, left_sigma = self.calculateSigma(mean - (mean * (4/10)), mean - (mean * (1/10)), middle_left_sigma)
-
-            _, middle_right_sigma = self.calculateSigma(mean + (minus_mean * (1/10)), mean, center_sigma)
-            cr_high, right_sigma = self.calculateSigma(mean + (minus_mean * (4/10)), mean + (minus_mean * (1/10)), middle_right_sigma)
-
-            self.features[idx][self.settings.verylow] = self.gaussLeft(self.x_range, mean - (mean * (4/10)), left_sigma)
-            self.features[idx][self.settings.low] = self.gaussianFunction(self.x_range, mean - (mean * (4/10)), left_sigma, -1, cr_low, 0, mean - (mean * (1/10)), -1, middle_left_sigma)
-            self.features[idx][self.settings.middlelow] = self.gaussianFunction(self.x_range, mean - (mean * (1/10)), middle_left_sigma, cr_low, cr_middlelow, mean - (mean * (4/10)), mean, left_sigma, center_sigma)
-
-            self.features[idx][self.settings.middle] = self.gaussianFunction(self.x_range, mean, center_sigma, cr_middlelow, cr_middle, mean - (mean * (1/10)), mean + (minus_mean * (1/10)), middle_left_sigma, middle_right_sigma)
-
-            self.features[idx][self.settings.middlehigh] = self.gaussianFunction(self.x_range, mean + (minus_mean * (1/10)), middle_right_sigma, cr_middle, cr_high, mean, mean + (minus_mean * (4/10)), center_sigma, right_sigma)
-            self.features[idx][self.settings.high] = self.gaussianFunction(self.x_range, mean + (minus_mean * (4/10)), right_sigma, cr_high, -1, mean + (minus_mean * (1/10)), 1.01, middle_right_sigma, -1)  
-            self.features[idx][self.settings.veryhigh] = self.gaussRight(self.x_range, mean + (minus_mean * (4/10)), right_sigma)
+            lower_functions = self.generateGausses7(self.x_range, mean, sigma_offset * (-1))
+            upper_functions = self.generateGausses7(self.x_range, mean, sigma_offset)
+            names = (self.settings.verylow, self.settings.low, self.settings.middlelow, self.settings.middle, self.settings.middlehigh, self.settings.high, self.settings.veryhigh)
+            for lower, upper, name in zip(lower_functions, upper_functions, names):
+                self.features[idx][name] = (lower, upper)
             
         elif self.settings.gausses == 9:
-            if (minus_mean * (1/20) >= (mean * (1/20))):
-                cr_middle, center_sigma = self.calculateBothSigma(mean, mean + (mean * (1/20)))
-            else:
-                cr_middle, center_sigma = self.calculateBothSigma(mean, mean + (minus_mean * (1/20)))
-            
-            cr_middlelow, middle_left_sigma = self.calculateSigma(mean - (mean * (1/20)), mean, center_sigma)
-            cr_middlelowminus, middle_left_minus_sigma = self.calculateSigma(mean - (mean * (4/20)), mean - (mean * (1/20)), middle_left_sigma)
-            cr_low, left_sigma = self.calculateSigma(mean - (mean * (10/20)), mean - (mean * (4/20)), middle_left_minus_sigma)
+            lower_functions = self.generateGausses9(self.x_range, mean, sigma_offset * (-1))
+            upper_functions = self.generateGausses9(self.x_range, mean, sigma_offset)
+            names = (self.settings.verylow, self.settings.low, self.settings.middlelowminus, self.settings.middlelow, self.settings.middle, self.settings.middlehigh, self.settings.middlehighplus, self.settings.high, self.settings.veryhigh)
+            for lower, upper, name in zip(lower_functions, upper_functions, names):
+                self.features[idx][name] = (lower, upper)
 
-            _, middle_right_sigma = self.calculateSigma(mean + (minus_mean * (1/20)), mean, center_sigma)
-            cr_middlehighplus, middle_right_plus_sigma = self.calculateSigma(mean + (minus_mean * (4/20)), mean + (minus_mean * (1/20)), middle_right_sigma)
-            cr_high, right_sigma = self.calculateSigma(mean + (minus_mean * (10/20)), mean + (minus_mean * (4/20)), middle_right_plus_sigma)
-
-            self.features[idx][self.settings.verylow] = self.gaussLeft(self.x_range, mean - (mean * (10/20)), left_sigma)
-            self.features[idx][self.settings.low] = self.gaussianFunction(self.x_range, mean - (mean * (10/20)), left_sigma, -1, cr_low, 0, mean - (mean * (4/20)), -1, middle_left_minus_sigma)
-            self.features[idx][self.settings.middlelowminus] = self.gaussianFunction(self.x_range, mean - (mean * (4/20)), middle_left_minus_sigma, cr_low, cr_middlelowminus, mean - (mean * (10/20)), mean - (mean * (1/20)), left_sigma, middle_left_sigma)
-            self.features[idx][self.settings.middlelow] = self.gaussianFunction(self.x_range, mean - (mean * (1/20)), middle_left_sigma, cr_middlelowminus, cr_middlelow, mean - (mean * (4/20)), mean, middle_left_minus_sigma, center_sigma)
-
-            self.features[idx][self.settings.middle] = self.gaussianFunction(self.x_range, mean, center_sigma, cr_middlelow, cr_middle, mean - (mean * (1/20)), mean + (minus_mean * (1/20)), middle_left_sigma, middle_right_sigma)
-
-            self.features[idx][self.settings.middlehigh] = self.gaussianFunction(self.x_range, mean + (minus_mean * (1/20)), middle_right_sigma, cr_middle, cr_high, mean, mean + (minus_mean * (4/20)), center_sigma, middle_right_plus_sigma)
-            self.features[idx][self.settings.middlehighplus] = self.gaussianFunction(self.x_range, mean + (minus_mean *(4/20)), middle_right_plus_sigma, cr_middlehighplus, cr_high, mean  + (minus_mean * (1/20)), mean  + (minus_mean * (10/20)), middle_right_sigma, right_sigma)
-            self.features[idx][self.settings.high] = self.gaussianFunction(self.x_range, mean + (minus_mean * (10/20)), right_sigma, cr_high, -1, mean + (minus_mean * (4/20)), 1.01, middle_right_plus_sigma, -1)  
-            self.features[idx][self.settings.veryhigh] = self.gaussRight(self.x_range, mean + (minus_mean * (10/20)), right_sigma)
-            
         elif self.settings.gausses == 11:
-            if (minus_mean * (1/35) >= (mean * (1/35))):
-                cr_middle, center_sigma = self.calculateBothSigma(mean, mean + (mean * (1/35)))
-            else:
-                cr_middle, center_sigma = self.calculateBothSigma(mean, mean + (minus_mean * (1/35)))
-            
-            cr_middlelowplus, middle_left_plus_sigma = self.calculateSigma(mean - (mean * (1/35)), mean, center_sigma)
-            cr_middlelow, middle_left_sigma = self.calculateSigma(mean - (mean * (4/35)), mean - (mean * (1/35)), middle_left_plus_sigma)
-            cr_middlelowminus, middle_left_minus_sigma = self.calculateSigma(mean - (mean * (10/35)), mean - (mean * (4/35)), middle_left_sigma)
-            cr_low, left_sigma = self.calculateSigma(mean - (mean * (20/35)), mean - (mean * (10/35)), middle_left_minus_sigma)
-            
-            _, middle_right_sigma = self.calculateSigma(mean + (minus_mean * (1/35)), mean, center_sigma)
-            cr_middlehighplus, middle_right_plus_sigma = self.calculateSigma(mean + (minus_mean * (4/35)), mean + (minus_mean * (1/35)), middle_right_sigma)
-            cr_high, right_sigma = self.calculateSigma(mean + (minus_mean * (10/35)), mean + (minus_mean * (4/35)), middle_right_plus_sigma)
-            cr_middlehighminus, middle_right_minus_sigma = self.calculateSigma(mean + (minus_mean * (20/35)), mean + (minus_mean * (10/35)), right_sigma)
-
-            self.features[idx][self.settings.verylow] = self.gaussLeft(self.x_range, mean - (mean * (20/35)), left_sigma)
-            self.features[idx][self.settings.low] = self.gaussianFunction(self.x_range, mean - (mean * (20/35)), left_sigma, -1, cr_low, 0, mean - (mean * (10/35)), -1, middle_left_minus_sigma)
-            self.features[idx][self.settings.middlelowminus] = self.gaussianFunction(self.x_range, mean - (mean * (10/35)), middle_left_minus_sigma, cr_low, cr_middlelowminus, mean - (mean * (20/35)), mean - (mean * (4/35)), left_sigma, middle_left_sigma)
-            self.features[idx][self.settings.middlelow] = self.gaussianFunction(self.x_range, mean - (mean * (4/35)), middle_left_sigma, cr_middlelowminus, cr_middlelow, mean - (mean * (10/35)), mean - (mean * (1/35)), middle_left_minus_sigma, middle_left_plus_sigma)
-            self.features[idx][self.settings.middlelowplus] = self.gaussianFunction(self.x_range, mean - (mean * (1/35)), middle_left_plus_sigma, cr_middlelow, cr_middlelowplus, mean - (mean * (4/35)), mean, middle_left_sigma, center_sigma)
-
-            self.features[idx][self.settings.middle] = self.gaussianFunction(self.x_range, mean, center_sigma, cr_middlelow, cr_middle, mean - (mean * (1/35)), mean + (minus_mean * (1/35)), middle_left_sigma, middle_right_sigma)
-
-            self.features[idx][self.settings.middlehigh] = self.gaussianFunction(self.x_range, mean + (minus_mean * (1/35)), middle_right_sigma, cr_middle, cr_high, mean, mean + (minus_mean * (4/35)), center_sigma, middle_right_plus_sigma)
-            self.features[idx][self.settings.middlehighplus] = self.gaussianFunction(self.x_range, mean + (minus_mean * (4/35)), middle_right_plus_sigma, cr_middlehighplus, cr_high, mean  + (minus_mean * (1/35)), mean  + (minus_mean * (10/35)), middle_right_sigma, right_sigma)
-            self.features[idx][self.settings.high] = self.gaussianFunction(self.x_range, mean + (minus_mean * (10/35)), right_sigma, cr_high, cr_middlehighminus, mean + (minus_mean * (4/35)), mean + (minus_mean * (20/35)), middle_right_plus_sigma, middle_right_minus_sigma)  
-            self.features[idx][self.settings.middlehighminus] = self.gaussianFunction(self.x_range, mean + (minus_mean * (20/35)), middle_right_minus_sigma, cr_middlehighminus, -1, mean  + (minus_mean * (10/35)), 1.01, right_sigma, -1)
-            self.features[idx][self.settings.veryhigh] = self.gaussRight(self.x_range, mean + (minus_mean * (20/35)), middle_right_minus_sigma)
+            lower_functions = self.generateGausses11(self.x_range, mean, sigma_offset * (-1))
+            upper_functions = self.generateGausses11(self.x_range, mean, sigma_offset)
+            names = (self.settings.verylow, self.settings.low, self.settings.middlelowminus, self.settings.middlelow, self.settings.middlelowplus, self.settings.middle, self.settings.middlehighminus, self.settings.middlehigh, self.settings.middlehighplus, self.settings.high, self.settings.veryhigh)
+            for lower, upper, name in zip(lower_functions, upper_functions, names):
+                self.features[idx][name] = (lower, upper)
             
         self.fuzzify_parameters.append(mean)
         self.fuzzify_parameters.append(sigma)
                               
-
         for x in values:
             verylow_value = low_value = middlelowminus_value = middlelow_value = middlelowplus_value = middle_value = middlehighminus_value = middlehigh_value = middlehighplus_value = high_value = veryhigh_value = 0
 
@@ -272,48 +321,48 @@ class FuzzifierProgressive(object):
                 veryhigh_value = self.rightGaussianValue(x, mean, sigma)
                 
             if self.settings.gausses == 5:
-                middle_value = self.gaussianValue(x, mean, center_sigma, cr_low, cr_middle, mean - (mean * (1/4)), mean + (minus_mean * (1/4)), left_sigma, right_sigma)
-                verylow_value = self.leftGaussianValue(x, mean - (mean * (1/4)), left_sigma)
-                low_value = self.gaussianValue(x, mean - (mean * (1/4)), left_sigma, -1, cr_low, 0, mean, -1, center_sigma)
-                high_value = self.gaussianValue(x, mean + (minus_mean * (1/4)), right_sigma, cr_middle, -1, mean, 1.01, center_sigma, -1)  
-                veryhigh_value = self.rightGaussianValue(x, mean + (minus_mean * (1/4)), right_sigma)
+                middle_value = self.gaussianValue(x, mean, self.__center_sigma, self.__cr_low, self.__cr_middle, mean - (mean * (1/4)), mean + (minus_mean * (1/4)), self.__left_sigma, self.__right_sigma)
+                verylow_value = self.leftGaussianValue(x, mean - (mean * (1/4)), self.__left_sigma)
+                low_value = self.gaussianValue(x, mean - (mean * (1/4)), self.__left_sigma, -1, self.__cr_low, 0, mean, -1, self.__center_sigma)
+                high_value = self.gaussianValue(x, mean + (minus_mean * (1/4)), self.__right_sigma, self.__cr_middle, -1, mean, 1.01, self.__center_sigma, -1)
+                veryhigh_value = self.rightGaussianValue(x, mean + (minus_mean * (1/4)), self.__right_sigma)
 
             elif self.settings.gausses == 7:
-                middle_value = self.gaussianValue(x, mean, center_sigma, cr_middlelow, cr_middle, mean - (mean * (1/10)), mean + (minus_mean * (1/10)), middle_left_sigma, middle_right_sigma)
-                verylow_value = self.leftGaussianValue(x, mean - (mean * (4/10)), left_sigma)
-                low_value = self.gaussianValue(x, mean - (mean * (4/10)), left_sigma, -1, cr_low, 0, mean - (mean * (1/10)), -1, middle_left_sigma)
-                middlelow_value = self.gaussianValue(x, mean - (mean * (1/10)), middle_left_sigma, cr_low, cr_middlelow, mean - (mean * (4/10)), mean, left_sigma, center_sigma)
-                middlehigh_value = self.gaussianValue(x, mean + (minus_mean * (1/10)), middle_right_sigma, cr_middle, cr_high, mean, mean + (minus_mean * (4/10)), center_sigma, right_sigma)
-                high_value = self.gaussianValue(x, mean + (minus_mean * (4/10)), right_sigma, cr_high, -1, mean + (minus_mean * (1/10)), 1.01, middle_right_sigma, -1)  
-                veryhigh_value = self.rightGaussianValue(x, mean + (minus_mean * (4/10)), right_sigma)
+                middle_value = self.gaussianValue(x, mean, self.__center_sigma, self.__cr_middlelow, self.__cr_middle, mean - (mean * (1/10)), mean + (minus_mean * (1/10)), self.__middle_left_sigma, self.__middle_right_sigma)
+                verylow_value = self.leftGaussianValue(x, mean - (mean * (4/10)), self.__left_sigma)
+                low_value = self.gaussianValue(x, mean - (mean * (4/10)), self.__left_sigma, -1, self.__cr_low, 0, mean - (mean * (1/10)), -1, self.__middle_left_sigma)
+                middlelow_value = self.gaussianValue(x, mean - (mean * (1/10)), self.__middle_left_sigma, self.__cr_low, self.__cr_middlelow, mean - (mean * (4/10)), mean, self.__left_sigma, self.__center_sigma)
+                middlehigh_value = self.gaussianValue(x, mean + (minus_mean * (1/10)), self.__middle_right_sigma, self.__cr_middle, self.__cr_high, mean, mean + (minus_mean * (4/10)), self.__center_sigma, self.__right_sigma)
+                high_value = self.gaussianValue(x, mean + (minus_mean * (4/10)), self.__right_sigma, self.__cr_high, -1, mean + (minus_mean * (1/10)), 1.01, self.__middle_right_sigma, -1)
+                veryhigh_value = self.rightGaussianValue(x, mean + (minus_mean * (4/10)), self.__right_sigma)
                 
             elif self.settings.gausses == 9:
-                verylow_value = self.leftGaussianValue(x, mean - (mean * (10/20)), left_sigma)
-                low_value = self.gaussianValue(x, mean - (mean * (10/20)), left_sigma, -1, cr_low, 0, mean - (mean * (4/20)), -1, middle_left_minus_sigma)
-                middlelowminus_value = self.gaussianValue(x, mean - (mean * (4/20)), middle_left_minus_sigma, cr_low, cr_middlelowminus, mean - (mean * (10/20)), mean - (mean * (1/20)), left_sigma, middle_left_sigma)
-                middlelow_value = self.gaussianValue(x, mean - (mean * (1/20)), middle_left_sigma, cr_middlelowminus, cr_middlelow, mean - (mean * (4/20)), mean, middle_left_minus_sigma, center_sigma)
+                verylow_value = self.leftGaussianValue(x, mean - (mean * (10/20)), self.__left_sigma)
+                low_value = self.gaussianValue(x, mean - (mean * (10/20)), self.__left_sigma, -1, self.__cr_low, 0, mean - (mean * (4/20)), -1, self.__middle_left_minus_sigma)
+                middlelowminus_value = self.gaussianValue(x, mean - (mean * (4/20)), self.__middle_left_minus_sigma, self.__cr_low, self.__cr_middlelowminus, mean - (mean * (10/20)), mean - (mean * (1/20)), self.__left_sigma, self.__middle_left_sigma)
+                middlelow_value = self.gaussianValue(x, mean - (mean * (1/20)), self.__middle_left_sigma, self.__cr_middlelowminus, self.__cr_middlelow, mean - (mean * (4/20)), mean, self.__middle_left_minus_sigma, self.__center_sigma)
 
-                middle_value = self.gaussianValue(x, mean, center_sigma, cr_middlelow, cr_middle, mean - (mean * (1/20)), mean + (minus_mean * (1/20)), middle_left_sigma, middle_right_sigma)
+                middle_value = self.gaussianValue(x, mean, self.__center_sigma, self.__cr_middlelow, self.__cr_middle, mean - (mean * (1/20)), mean + (minus_mean * (1/20)), self.__middle_left_sigma, self.__middle_right_sigma)
 
-                middlehigh_value = self.gaussianValue(x, mean + (minus_mean * (1/20)), middle_right_sigma, cr_middle, cr_high, mean, mean + (minus_mean * (4/20)), center_sigma, middle_right_plus_sigma)
-                middlehighplus_value = self.gaussianValue(x, mean + (minus_mean *(4/20)), middle_right_plus_sigma, cr_middlehighplus, cr_high, mean  + (minus_mean * (1/20)), mean  + (minus_mean * (10/20)), middle_right_sigma, right_sigma)
-                high_value = self.gaussianValue(x, mean + (minus_mean * (10/20)), right_sigma, cr_high, -1, mean + (minus_mean * (4/20)), 1.01, middle_right_plus_sigma, -1)  
-                veryhigh_value = self.rightGaussianValue(x, mean + (minus_mean * (10/20)), right_sigma)
+                middlehigh_value = self.gaussianValue(x, mean + (minus_mean * (1/20)), self.__middle_right_sigma, self.__cr_middle, self.__cr_high, mean, mean + (minus_mean * (4/20)), self.__center_sigma, self.__middle_right_plus_sigma)
+                middlehighplus_value = self.gaussianValue(x, mean + (minus_mean *(4/20)), self.__middle_right_plus_sigma, self.__cr_middlehighplus, self.__cr_high, mean  + (minus_mean * (1/20)), mean  + (minus_mean * (10/20)), self.__middle_right_sigma, self.__right_sigma)
+                high_value = self.gaussianValue(x, mean + (minus_mean * (10/20)), self.__right_sigma, self.__cr_high, -1, mean + (minus_mean * (4/20)), 1.01, self.__middle_right_plus_sigma, -1)
+                veryhigh_value = self.rightGaussianValue(x, mean + (minus_mean * (10/20)), self.__right_sigma)
                 
             elif self.settings.gausses == 11:
-                verylow_value = self.leftGaussianValue(x, mean - (mean * (20/35)), left_sigma)
-                low_value = self.gaussianValue(x, mean - (mean * (20/35)), left_sigma, -1, cr_low, 0, mean - (mean * (10/35)), -1, middle_left_minus_sigma)
-                middlelowminus_value = self.gaussianValue(x, mean - (mean * (10/35)), middle_left_minus_sigma, cr_low, cr_middlelowminus, mean - (mean * (20/35)), mean - (mean * (4/35)), left_sigma, middle_left_sigma)
-                middlelow_value = self.gaussianValue(x, mean - (mean * (4/35)), middle_left_sigma, cr_middlelowminus, cr_middlelow, mean - (mean * (10/35)), mean - (mean * (1/35)), middle_left_minus_sigma, middle_left_plus_sigma)
-                middlelowplus_value = self.gaussianValue(x, mean - (mean * (1/35)), middle_left_plus_sigma, cr_middlelow, cr_middlelowplus, mean - (mean * (4/35)), mean, middle_left_sigma, center_sigma)
+                verylow_value = self.leftGaussianValue(x, mean - (mean * (20/35)), self.__left_sigma)
+                low_value = self.gaussianValue(x, mean - (mean * (20/35)), self.__left_sigma, -1, self.__cr_low, 0, mean - (mean * (10/35)), -1, self.__middle_left_minus_sigma)
+                middlelowminus_value = self.gaussianValue(x, mean - (mean * (10/35)), self.__middle_left_minus_sigma, self.__cr_low, self.__cr_middlelowminus, mean - (mean * (20/35)), mean - (mean * (4/35)), self.__left_sigma, self.__middle_left_sigma)
+                middlelow_value = self.gaussianValue(x, mean - (mean * (4/35)), self.__middle_left_sigma, self.__cr_middlelowminus, self.__cr_middlelow, mean - (mean * (10/35)), mean - (mean * (1/35)), self.__middle_left_minus_sigma, self.__middle_left_plus_sigma)
+                middlelowplus_value = self.gaussianValue(x, mean - (mean * (1/35)), self.__middle_left_plus_sigma, self.__cr_middlelow, self.__cr_middlelowplus, mean - (mean * (4/35)), mean, self.__middle_left_sigma, self.__center_sigma)
 
-                middle_value = self.gaussianValue(x, mean, center_sigma, cr_middlelow, cr_middle, mean - (mean * (1/35)), mean + (minus_mean * (1/35)), middle_left_sigma, middle_right_sigma)
+                middle_value = self.gaussianValue(x, mean, self.__center_sigma, self.__cr_middlelow, self.__cr_middle, mean - (mean * (1/35)), mean + (minus_mean * (1/35)), self.__middle_left_sigma, self.__middle_right_sigma)
 
-                middlehigh_value = self.gaussianValue(x, mean + (minus_mean * (1/35)), middle_right_sigma, cr_middle, cr_high, mean, mean + (minus_mean * (4/35)), center_sigma, middle_right_plus_sigma)
-                middlehighplus_value = self.gaussianValue(x, mean + (minus_mean * (4/35)), middle_right_plus_sigma, cr_middlehighplus, cr_high, mean  + (minus_mean * (1/35)), mean  + (minus_mean * (10/35)), middle_right_sigma, right_sigma)
-                high_value = self.gaussianValue(x, mean + (minus_mean * (10/35)), right_sigma, cr_high, cr_middlehighminus, mean + (minus_mean * (4/35)), mean + (minus_mean * (20/35)), middle_right_plus_sigma, middle_right_minus_sigma)  
-                middlehighminus_value = self.gaussianValue(x, mean + (minus_mean * (20/35)), middle_right_minus_sigma, cr_middlehighminus, -1, mean  + (minus_mean * (10/35)), 1.01, right_sigma, -1)
-                veryhigh_value = self.rightGaussianValue(x, mean + (minus_mean * (20/35)), middle_right_minus_sigma)
+                middlehigh_value = self.gaussianValue(x, mean + (minus_mean * (1/35)), self.__middle_right_sigma, self.__cr_middle, self.__cr_high, mean, mean + (minus_mean * (4/35)), self.__center_sigma, self.__middle_right_plus_sigma)
+                middlehighplus_value = self.gaussianValue(x, mean + (minus_mean * (4/35)), self.__middle_right_plus_sigma, self.__cr_middlehighplus, self.__cr_high, mean  + (minus_mean * (1/35)), mean  + (minus_mean * (10/35)), self.__middle_right_sigma, self.__right_sigma)
+                high_value = self.gaussianValue(x, mean + (minus_mean * (10/35)), self.__right_sigma, self.__cr_high, self.__cr_middlehighminus, mean + (minus_mean * (4/35)), mean + (minus_mean * (20/35)), self.__middle_right_plus_sigma, self.__middle_right_minus_sigma)
+                middlehighminus_value = self.gaussianValue(x, mean + (minus_mean * (20/35)), self.__middle_right_minus_sigma, self.__cr_middlehighminus, -1, mean  + (minus_mean * (10/35)), 1.01, self.__right_sigma, -1)
+                veryhigh_value = self.rightGaussianValue(x, mean + (minus_mean * (20/35)), self.__middle_right_minus_sigma)
 
             max_value = max([verylow_value, low_value, middlelowminus_value, middlelow_value, middlelowplus_value, middle_value, middlehighminus_value, middlehigh_value, middlehighplus_value, high_value, veryhigh_value])
             
@@ -348,14 +397,14 @@ class FuzzifierProgressive(object):
         for x in self.features:
             x.view()
 
-    def fuzzify(self, features_table, mean_param):
+    def fuzzify(self, features_table, mean_param, sigma_offset = 0):
         if isinstance(mean_param, (int, np.integer)):
             for idx, x in enumerate(self.features):
-                features_table[x.label] = self.numbersToRowSets(idx, features_table[x.label], mean_param)
+                features_table[x.label] = self.numbersToRowSets(idx, features_table[x.label], mean_param, sigma_offset)
         
         else:
             for idx, x in enumerate(self.features):
-                features_table[x.label] = self.numbersToRowSets(idx, features_table[x.label], mean_param[idx])
+                features_table[x.label] = self.numbersToRowSets(idx, features_table[x.label], mean_param[idx], sigma_offset)
         
         if self.settings.show_results:
             self.presentFuzzyFeature_Charts()

@@ -1,0 +1,301 @@
+Fuzzifier Type,Gausses,Adjustment,Sigma Offset,Center Offset,Accuracy,F1 Score
+Gaussian Equal,9,-2,0.02,0.02,"0    0.761905
+Name: Accuracy, dtype: float64","0    0.667258
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.02,0.04,"0    0.761905
+Name: Accuracy, dtype: float64","0    0.667258
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.02,0.06,"0    0.761905
+Name: Accuracy, dtype: float64","0    0.667258
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.02,0.08,"0    0.761905
+Name: Accuracy, dtype: float64","0    0.667258
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.02,0.1,"0    0.761905
+Name: Accuracy, dtype: float64","0    0.667258
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.02,0.12000000000000001,"0    0.761905
+Name: Accuracy, dtype: float64","0    0.667258
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.02,0.13999999999999999,"0    0.761905
+Name: Accuracy, dtype: float64","0    0.667258
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.02,0.16,"0    0.761905
+Name: Accuracy, dtype: float64","0    0.667258
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.02,0.18,"0    0.761905
+Name: Accuracy, dtype: float64","0    0.667258
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.02,0.19999999999999998,"0    0.761905
+Name: Accuracy, dtype: float64","0    0.667258
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.04,0.02,"0    0.752381
+Name: Accuracy, dtype: float64","0    0.65875
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.04,0.04,"0    0.752381
+Name: Accuracy, dtype: float64","0    0.65875
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.04,0.06,"0    0.752381
+Name: Accuracy, dtype: float64","0    0.65875
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.04,0.08,"0    0.752381
+Name: Accuracy, dtype: float64","0    0.65875
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.04,0.1,"0    0.752381
+Name: Accuracy, dtype: float64","0    0.65875
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.04,0.12000000000000001,"0    0.752381
+Name: Accuracy, dtype: float64","0    0.65875
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.04,0.13999999999999999,"0    0.752381
+Name: Accuracy, dtype: float64","0    0.65875
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.04,0.16,"0    0.752381
+Name: Accuracy, dtype: float64","0    0.65875
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.04,0.18,"0    0.752381
+Name: Accuracy, dtype: float64","0    0.65875
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.04,0.19999999999999998,"0    0.752381
+Name: Accuracy, dtype: float64","0    0.65875
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.06,0.02,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.6325
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.06,0.04,"0    0.72381
+Name: Accuracy, dtype: float64","0    0.624491
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.06,0.06,"0    0.72381
+Name: Accuracy, dtype: float64","0    0.624491
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.06,0.08,"0    0.72381
+Name: Accuracy, dtype: float64","0    0.624491
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.06,0.1,"0    0.72381
+Name: Accuracy, dtype: float64","0    0.624491
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.06,0.12000000000000001,"0    0.72381
+Name: Accuracy, dtype: float64","0    0.624491
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.06,0.13999999999999999,"0    0.72381
+Name: Accuracy, dtype: float64","0    0.624491
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.06,0.16,"0    0.72381
+Name: Accuracy, dtype: float64","0    0.624491
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.06,0.18,"0    0.72381
+Name: Accuracy, dtype: float64","0    0.624491
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.06,0.19999999999999998,"0    0.72381
+Name: Accuracy, dtype: float64","0    0.624491
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.08,0.02,"0    0.714286
+Name: Accuracy, dtype: float64","0    0.626068
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.08,0.04,"0    0.714286
+Name: Accuracy, dtype: float64","0    0.626068
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.08,0.06,"0    0.714286
+Name: Accuracy, dtype: float64","0    0.626068
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.08,0.08,"0    0.714286
+Name: Accuracy, dtype: float64","0    0.626068
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.08,0.1,"0    0.714286
+Name: Accuracy, dtype: float64","0    0.626068
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.08,0.12000000000000001,"0    0.714286
+Name: Accuracy, dtype: float64","0    0.626068
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.08,0.13999999999999999,"0    0.714286
+Name: Accuracy, dtype: float64","0    0.626068
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.08,0.16,"0    0.714286
+Name: Accuracy, dtype: float64","0    0.626068
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.08,0.18,"0    0.714286
+Name: Accuracy, dtype: float64","0    0.626068
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.08,0.19999999999999998,"0    0.714286
+Name: Accuracy, dtype: float64","0    0.626068
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.1,0.02,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.642162
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.1,0.04,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.642162
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.1,0.06,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.642162
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.1,0.08,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.642162
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.1,0.1,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.642162
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.1,0.12000000000000001,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.642162
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.1,0.13999999999999999,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.642162
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.1,0.16,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.642162
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.1,0.18,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.642162
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.1,0.19999999999999998,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.642162
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.12000000000000001,0.02,"0    0.742857
+Name: Accuracy, dtype: float64","0    0.640639
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.12000000000000001,0.04,"0    0.742857
+Name: Accuracy, dtype: float64","0    0.640639
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.12000000000000001,0.06,"0    0.742857
+Name: Accuracy, dtype: float64","0    0.640639
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.12000000000000001,0.08,"0    0.742857
+Name: Accuracy, dtype: float64","0    0.640639
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.12000000000000001,0.1,"0    0.742857
+Name: Accuracy, dtype: float64","0    0.640639
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.12000000000000001,0.12000000000000001,"0    0.742857
+Name: Accuracy, dtype: float64","0    0.640639
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.12000000000000001,0.13999999999999999,"0    0.742857
+Name: Accuracy, dtype: float64","0    0.640639
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.12000000000000001,0.16,"0    0.742857
+Name: Accuracy, dtype: float64","0    0.640639
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.12000000000000001,0.18,"0    0.742857
+Name: Accuracy, dtype: float64","0    0.640639
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.12000000000000001,0.19999999999999998,"0    0.742857
+Name: Accuracy, dtype: float64","0    0.640639
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.13999999999999999,0.02,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.6325
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.13999999999999999,0.04,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.6325
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.13999999999999999,0.06,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.6325
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.13999999999999999,0.08,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.6325
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.13999999999999999,0.1,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.6325
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.13999999999999999,0.12000000000000001,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.6325
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.13999999999999999,0.13999999999999999,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.6325
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.13999999999999999,0.16,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.6325
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.13999999999999999,0.18,"0    0.733333
+Name: Accuracy, dtype: float64","0    0.6325
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.13999999999999999,0.19999999999999998,"0    0.72381
+Name: Accuracy, dtype: float64","0    0.624491
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.16,0.02,"0    0.704762
+Name: Accuracy, dtype: float64","0    0.618182
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.16,0.04,"0    0.704762
+Name: Accuracy, dtype: float64","0    0.618182
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.16,0.06,"0    0.704762
+Name: Accuracy, dtype: float64","0    0.618182
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.16,0.08,"0    0.704762
+Name: Accuracy, dtype: float64","0    0.618182
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.16,0.1,"0    0.704762
+Name: Accuracy, dtype: float64","0    0.618182
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.16,0.12000000000000001,"0    0.704762
+Name: Accuracy, dtype: float64","0    0.618182
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.16,0.13999999999999999,"0    0.704762
+Name: Accuracy, dtype: float64","0    0.618182
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.16,0.16,"0    0.704762
+Name: Accuracy, dtype: float64","0    0.618182
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.16,0.18,"0    0.704762
+Name: Accuracy, dtype: float64","0    0.618182
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.16,0.19999999999999998,"0    0.704762
+Name: Accuracy, dtype: float64","0    0.618182
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.18,0.02,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.18,0.04,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.18,0.06,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.18,0.08,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.18,0.1,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.18,0.12000000000000001,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.18,0.13999999999999999,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.18,0.16,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.18,0.18,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.18,0.19999999999999998,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.19999999999999998,0.02,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.19999999999999998,0.04,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.19999999999999998,0.06,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.19999999999999998,0.08,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.19999999999999998,0.1,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.19999999999999998,0.12000000000000001,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.19999999999999998,0.13999999999999999,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.19999999999999998,0.16,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.19999999999999998,0.18,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"
+Gaussian Equal,9,-2,0.19999999999999998,0.19999999999999998,"0    0.666667
+Name: Accuracy, dtype: float64","0    0.595665
+Name: F1 Score, dtype: float64"

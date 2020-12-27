@@ -8,14 +8,22 @@ from Class.RulesExtractor import RulesExtractor as RulesExtractor
 
 class ValueTest(object):
 
-    def __init__(self, settings, s_function_width, is_train_df = True, s_function_center = 0.5, threshold = -1):
+    def __init__(self, settings, s_function_width, is_train_df = True, s_function_center = 0.5, threshold = -1, load_data=True):
         self.path = settings.backup_folder
         self.settings = settings
         self.d_results = [settings.class_2, settings.class_1]
         self.x_range = np.arange(settings.set_min, settings.set_max, settings.fuzzy_sets_precision)
         self.s_function_width = s_function_width
+        self.results = pd.DataFrame({
+            'Fuzzifier Type': pd.Series([], dtype='str'),
+            'Gausses': pd.Series([], dtype='int'),
+            'Adjustment': pd.Series([], dtype='str'),
+            'Accuracy': pd.Series([], dtype='float'),
+            'F1 Score': pd.Series([], dtype='float')
+        })
         self.fuzzyHelper = FuzzyHelper(settings)
-        self.loadData(settings, is_train_df)
+        if load_data:
+            self.loadData(settings, is_train_df)
 
     def highlightClassOne(self, row):
         return ['background-color: green' if self.settings.class_1 == x else "" for x in row]
@@ -33,15 +41,36 @@ class ValueTest(object):
         else:
             self.df = pickle.load(open(self.path + "test_features_df.p", "rb"))
             self.data_type = "Test"
+    
+    def createAntecedents(self, reductor, features, decision_table_with_reduct, df, data_type):
+        self.decision = pickle.load(open(self.path + "decision.p", "rb"))
+        self.rules_extractor = RulesExtractor(decision_table_with_reduct, reductor.reduct, self.settings)
+        self.rule_antecedents = self.rules_extractor.worker(decision_table_with_reduct, features, self.d_results, self.decision)
+        self.df = df
+        self.data_type = data_type
 
-    def sFunction(self, settings, s_function_center, title, show_results = True):
+    def sFunction(self, settings, s_function_center, title, show_results = True, center_offset = 0):
         print("-----------------------------------------------------------------------------------")
         start = time.time()
-        _, df = self.fuzzyHelper.sFunctionsValue(s_function_center, self.s_function_width, self.df, settings, self.x_range, self.rules_extractor, self.rule_antecedents, self.d_results, self.decision)
+        _, df = self.fuzzyHelper.sFunctionsValue(s_function_center, self.s_function_width, self.df, settings, self.x_range, self.rules_extractor, self.rule_antecedents, self.d_results, self.decision, center_offset)
         end = time.time()
 
         measured_time = end - start
         accuracy, precision, recall, fscore, support = self.fuzzyHelper.getScores(df)
+        
+        if self.settings.adjustment_value == -1:
+            adjustment = 'Mean'
+        else:
+            adjustment = 'Center'
+        
+        self.results = self.results.append({
+            'Fuzzifier Type': self.settings.style,
+            'Gausses': self.settings.gausses,
+            'Adjustment': adjustment,
+            'Accuracy': accuracy,
+            'F1 Score': (fscore[0] + fscore[1]) / 2
+        }, ignore_index=True)
+        
         if show_results:
         
             print("-----------------------------------------------------------------------------------")
@@ -62,8 +91,8 @@ class ValueTest(object):
     def noOptymalizationWorker(self, settings, show_results = True):
             return self.sFunction(settings, 0.5, "No Optymalization", show_results)
     
-    def sOptymalizationWorker(self, settings, center_point, show_results = True):
-            self.sFunction(settings, center_point, "Value S-Functions", show_results)
+    def sOptymalizationWorker(self, settings, center_point, show_results = True, center_offset = 0):
+            self.sFunction(settings, center_point, "Value S-Functions", show_results, center_offset)
 
     def thresholdWorker(self, settings, s_function_center, threshold, precision = 0.001, show_results = True):   
         print("-----------------------------------------------------------------------------------")
@@ -94,3 +123,6 @@ class ValueTest(object):
 
     def plotHistogram(self, bins = 100):
         self.fuzzyHelper.plotHistogram(self.df, bins)
+        
+    def saveResultsToCSV(self, name):
+        self.results.to_csv(name, index=None)

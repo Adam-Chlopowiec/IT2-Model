@@ -17,7 +17,7 @@ class Fuzzify(object):
     def __init__(self):
         self.settings = []
 
-    def fuzzifyFeatures(self, train_features_df = -1, sigma_mean_params = -1):
+    def fuzzifyFeatures(self, train_features_df = -1, sigma_mean_params = -1, sigma_offset = 0):
         
         fuzzifier = pickle.load(open(self.settings.backup_folder + "fuzzifier.p", "rb"))
         if isinstance(train_features_df, (int, np.integer)):
@@ -25,7 +25,7 @@ class Fuzzify(object):
         else:
             features_df = train_features_df
 
-        train_fuzzified_features_df, feature_labels, features, decision, fuzzify_parameters = fuzzifier.fuzzify(features_df, sigma_mean_params)
+        train_fuzzified_features_df, feature_labels, features, decision, fuzzify_parameters = fuzzifier.fuzzify(features_df, sigma_mean_params, sigma_offset)
         
         pickle.dump(features, open(self.settings.backup_folder + "features.p", "wb"))
         pickle.dump(decision, open(self.settings.backup_folder + "decision.p", "wb"))
@@ -38,8 +38,6 @@ class Fuzzify(object):
         reductor = Reductor(decision_table, self.settings)
        
         decision_table_with_reduct, features_number_after_reduct = reductor.worker(decision_table)
-        
-        display(decision_table_with_reduct)
 
         pickle.dump(reductor, open(self.settings.backup_folder + "reductor.p", "wb"))
         pickle.dump(decision_table_with_reduct, open(self.settings.backup_folder + "decision_table_with_reduct.p", "wb"))
@@ -51,10 +49,10 @@ class Fuzzify(object):
         else:
             return changed_decisions, features_number_after_reduct, implicants_number, features, decision_table_with_reduct, reductor
 
-    def worker(self, settings, sigma_mean_params):
+    def worker(self, settings, sigma_mean_params, sigma_offset = 0):
         start = time.time()
         self.settings = settings
-        changed_decisions, features_number_after_reduct, implicants_number, fuzzify_parameters = self.fuzzifyFeatures(-1, sigma_mean_params)
+        changed_decisions, features_number_after_reduct, implicants_number, fuzzify_parameters = self.fuzzifyFeatures(-1, sigma_mean_params, sigma_offset)
         end = time.time()
         return changed_decisions, features_number_after_reduct, implicants_number, fuzzify_parameters, end - start
 

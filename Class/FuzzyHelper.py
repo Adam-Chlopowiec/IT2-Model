@@ -70,25 +70,19 @@ class FuzzyHelper(object):
 
 
     def defineClassOne(self, x, center_point, width, center_offset = 0):
-        y = np.zeros(len(x))
-        idx = x <= center_point
-        y[idx] = fuzz.sigmf(x[idx], center_point + center_offset, width)
+        y = fuzz.sigmf(x, center_point + center_offset, width)
         return y
 
     def defineClassTwo(self, x, center_point, width, center_offset = 0):
-        y = np.zeros(len(x))
-        idx = x > center_point
-        y[idx] = fuzz.sigmf(x[idx], center_point + center_offset, width)
+        y = fuzz.sigmf(x, center_point + center_offset, width)
         return y
 
-    def prepareRules(self, save, x_range, center_point, width, rules_extractor, rule_antecedents, d_results, decision, df = None):
+    def prepareRules(self, save, x_range, center_point, width, rules_extractor, rule_antecedents, d_results, decision, df = None, center_offset = 0):
         
-        decision[self.settings.class_1] = (self.defineClassOne(x_range, center_point, -width, -0.15), self.defineClassOne(x_range, center_point, -width, 0.15))
-        decision[self.settings.class_2] = (self.defineClassTwo(x_range, center_point, width, 0.15), self.defineClassTwo(x_range, center_point, width, -0.15))
-        
+        decision[self.settings.class_1] = (self.defineClassOne(x_range, center_point, -width, -center_offset), self.defineClassOne(x_range, center_point, -width, center_offset))
+        decision[self.settings.class_2] = (self.defineClassTwo(x_range, center_point, width, center_offset), self.defineClassTwo(x_range, center_point, width, -center_offset))
+
         rules = rules_extractor.generateRules(rule_antecedents, d_results, decision)
-        print("Generated Rules: ")
-        display(rules)
         class_ctrl = ctrl.ControlSystem(rules)
         gen = class_ctrl.fuzzy_variables
         classing = ctrl.ControlSystemSimulation(class_ctrl)
@@ -120,7 +114,7 @@ class FuzzyHelper(object):
     def getScores(self, df, show = True):
         accuracy = accuracy_score(df['Decision'], df['Decision Fuzzy'])
         precision, recall, fscore, support = score(df['Decision'], df['Decision Fuzzy'])
-
+        
         if show:
             print("Accuracy: {}".format(accuracy))
             print("Precision: {}".format(precision))
@@ -131,13 +125,13 @@ class FuzzyHelper(object):
         return accuracy, precision, recall, fscore, support
 
     
-    def sFunctionsWorker(self, df, x_range, center_point, width, rules_extractor, rule_antecedents, d_results, decision):
-        decision, classing, rules_feature_names = self.prepareRules(False, x_range, center_point, width, rules_extractor, rule_antecedents, d_results, decision)
+    def sFunctionsWorker(self, df, x_range, center_point, width, rules_extractor, rule_antecedents, d_results, decision, center_offset = 0):
+        decision, classing, rules_feature_names = self.prepareRules(False, x_range, center_point, width, rules_extractor, rule_antecedents, d_results, decision, None, center_offset)
         print("Level 1")
-        df = self.prepareDataFrame(df, rules_feature_names)
+        df = self.prepareDataFrame(df, rules_feature_names) 
         
-        pickle.dump(rule_antecedents, open(r'F:\scikit-fuzzy\skfuzzy\controlType2\tests\Pickle\rule_antecedents.p', "wb")) # USUNĄĆ TO
-        pickle.dump(df, open(r'F:\scikit-fuzzy\skfuzzy\controlType2\tests\Pickle\dataframe.p', "wb")) # USUNĄĆ TO
+        #pickle.dump(decision, open("F:\skfuzzy\Tests\Pickle\decision.p", "wb"))
+        #pickle.dump(df, open("F:\skfuzzy\Tests\Pickle\dataframe.p", "wb"))
         
         print("Level 2")
         df = df.progress_apply(self.makePrediction, classing = classing, rules_feature_names = rules_feature_names, decision = decision, axis=1)
@@ -162,8 +156,8 @@ class FuzzyHelper(object):
         result = (test_fscore[0] + test_fscore[1]) / 2
         return 1 - result
 
-    def sFunctionsValue(self, center_point, width, df, settings, x_range, rules_extractor, rule_antecedents, d_results, decision):
-        accuracy, df = self.sFunctionsWorker(df, x_range, center_point, width, rules_extractor, rule_antecedents, d_results, decision)
+    def sFunctionsValue(self, center_point, width, df, settings, x_range, rules_extractor, rule_antecedents, d_results, decision, center_offset = 0):
+        accuracy, df = self.sFunctionsWorker(df, x_range, center_point, width, rules_extractor, rule_antecedents, d_results, decision, center_offset)
         return accuracy, df
 
     def sFunctionsValueKi67(self, center_point, width, df, settings, x_range, rules_extractor, rule_antecedents, d_results, decision):
