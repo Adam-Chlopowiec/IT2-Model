@@ -1,0 +1,5 @@
+Fuzzifier Type,Gausses,Adjustment,Sigma Offset,Center Offset,Accuracy,F1 Score
+Gaussian Equal,11,-1,0.1,0.08,1.0,1.0
+Gaussian Equal,11,-1,0.1,0.08,1.0,1.0
+Gaussian Equal,11,-1,0.1,0.08,1.0,1.0
+Gaussian Equal,11,-1,0.1,0.08,1.0,1.0
